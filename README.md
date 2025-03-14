@@ -188,4 +188,4 @@ For more information, see the [documentation](./docs/README.md).
 
 ## License
 
-UNLICENSED - Internal use only
+This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.
