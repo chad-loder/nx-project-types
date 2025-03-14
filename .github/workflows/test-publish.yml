@@ -1,0 +1,72 @@
+name: Test Publishing
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag (e.g., beta.1, rc.1)'
+        required: true
+        default: 'beta.1'
+
+jobs:
+  test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Set pre-release version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PRERELEASE_VERSION="${PACKAGE_VERSION}-${{ github.event.inputs.version }}"
+          echo "Setting version to ${PRERELEASE_VERSION}"
+          npm version ${PRERELEASE_VERSION} --no-git-tag-version
+      - name: Build
+        run: pnpm build:prod
+      - name: Setup and start Verdaccio
+        run: |
+          npm install -g verdaccio
+          mkdir -p ~/.config/verdaccio
+          echo "storage: ./storage" > ~/.config/verdaccio/config.yaml
+          echo "uplinks:" >> ~/.config/verdaccio/config.yaml
+          echo "  npmjs:" >> ~/.config/verdaccio/config.yaml
+          echo "    url: https://registry.npmjs.org/" >> ~/.config/verdaccio/config.yaml
+          echo "packages:" >> ~/.config/verdaccio/config.yaml
+          echo "  'nx-project-types':" >> ~/.config/verdaccio/config.yaml
+          echo "    access: \$all" >> ~/.config/verdaccio/config.yaml
+          echo "    publish: \$authenticated" >> ~/.config/verdaccio/config.yaml
+          echo "  '@*/*':" >> ~/.config/verdaccio/config.yaml
+          echo "    access: \$all" >> ~/.config/verdaccio/config.yaml
+          echo "    publish: \$authenticated" >> ~/.config/verdaccio/config.yaml
+          echo "    proxy: npmjs" >> ~/.config/verdaccio/config.yaml
+          echo "  '**':" >> ~/.config/verdaccio/config.yaml
+          echo "    access: \$all" >> ~/.config/verdaccio/config.yaml
+          echo "    publish: \$authenticated" >> ~/.config/verdaccio/config.yaml
+          echo "    proxy: npmjs" >> ~/.config/verdaccio/config.yaml
+          nohup verdaccio &
+          echo "Waiting for Verdaccio to start..."
+          sleep 5
+      - name: Create user and publish to Verdaccio
+        run: |
+          # Create a new user
+          npx npm-auth-to-token -u test -p test -e test@test.com -r http://localhost:4873
+          # Publish the package
+          cd dist && npm publish --registry http://localhost:4873
+      - name: Test installation from Verdaccio
+        run: |
+          mkdir -p test-install
+          cd test-install
+          echo '{"name":"test-install","version":"1.0.0","private":true}' > package.json
+          npm install nx-project-types --registry http://localhost:4873
+          # Verify installation
+          ls -la node_modules/nx-project-types

@@ -1,0 +1,38 @@
+name: Nightly Build
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run at midnight UTC
+  workflow_dispatch:  # Allow manual triggering
+
+jobs:
+  build-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+      - name: Install dependencies
+        run: pnpm install
+      - name: Set nightly version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TIMESTAMP=$(date -u +%Y%m%d%H%M)
+          NIGHTLY_VERSION="${PACKAGE_VERSION}-nightly.${TIMESTAMP}"
+          echo "NIGHTLY_VERSION=${NIGHTLY_VERSION}" >> $GITHUB_ENV
+          npm version ${NIGHTLY_VERSION} --no-git-tag-version
+      - name: Build
+        run: pnpm build:prod
+      - name: Publish to npm with nightly tag
+        run: cd dist && npm publish --tag nightly
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

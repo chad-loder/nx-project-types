@@ -75,6 +75,86 @@ Project types are defined in the `project-type.json` files in your Nx workspace.
 }
 ```
 
+## Development and Contributing
+
+### Branching Strategy
+
+We use a hybrid approach combining trunk-based development with semantic versioning:
+
+- `main`: Main development branch, always in a releasable state
+- `feature/*`: Short-lived feature branches (1-2 days max)
+- `bugfix/*`: Short-lived bug fix branches
+- `release/*`: Short-lived release branches
+- `hotfix/*`: Urgent fixes for production
+
+### Development Workflow
+
+1. **Start a new feature/fix**:
+   ```bash
+   git checkout -b feature/my-feature main
+   ```
+
+2. **Make changes and commit**:
+   ```bash
+   git add .
+   git commit -m "feat: add new feature"
+   ```
+
+3. **Push and create a PR**:
+   ```bash
+   git push -u origin feature/my-feature
+   ```
+
+4. **After review, merge into main**
+
+### Release Process
+
+We use [Semantic Versioning](https://semver.org/) for versioning:
+
+- MAJOR: Incompatible API changes
+- MINOR: Backward-compatible new features
+- PATCH: Backward-compatible bug fixes
+
+Our release workflow:
+
+```bash
+# Create a release
+npx nx release
+
+# Publish to npm
+npx nx release publish
+```
+
+### Available Builds
+
+- **Stable releases**: Published to npm with the `latest` tag
+- **Beta/RC releases**: Published with `beta` or `rc` tags
+- **Nightly builds**: Automatic builds from `main` with the `nightly` tag
+
+### Local Testing
+
+You can test the package locally using [Verdaccio](https://verdaccio.org/):
+
+```bash
+# Install Verdaccio
+npm install -g verdaccio
+
+# Start Verdaccio
+verdaccio
+
+# In a new terminal, create a user
+npm adduser --registry http://localhost:4873
+
+# Build the package
+pnpm build:prod
+
+# Publish to local registry
+cd dist && npm publish --registry http://localhost:4873
+
+# Install from local registry
+npm install nx-project-types --registry http://localhost:4873
+```
+
 ## Development
 
 This project is structured as a standard Nx workspace:

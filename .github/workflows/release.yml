@@ -51,7 +51,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref, '-') }}
           body_path: ${{ github.workspace }}/CHANGELOG.md
           files: |
             dist/**/*
@@ -59,7 +59,7 @@ jobs:
             README.md
 
       - name: Publish package
-        run: npx nx release publish
+        run: cd dist && npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
