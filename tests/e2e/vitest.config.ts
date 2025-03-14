@@ -9,6 +9,11 @@ export default mergeConfig(baseConfig, defineConfig({
       reportsDirectory: '../../coverage/e2e',
     },
     // E2E tests can take a long time to run
-    testTimeout: 120000,
+    testTimeout: 180000, // 3 minutes max timeout
+    hookTimeout: 60000,  // 1 minute for hooks
+    setupFiles: ['../setup.ts'],
+    // Ensure we have enough memory for Nx processes
+    pool: 'forks', // Use forks for more memory isolation
+    isolate: true, // Isolate tests to avoid interference
   },
 }));

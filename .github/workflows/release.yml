@@ -1,0 +1,65 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build-test-release:
+    name: Build, Test, and Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write # needed for provenance data generation
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Print environment info
+        run: npx nx report
+
+      - name: Clean and build (production)
+        run: pnpm clean && pnpm build:prod
+
+      - name: Run tests
+        run: pnpm test:unit
+
+      - name: Verify built package
+        run: |
+          ls -la dist
+          cat dist/package.json
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          draft: false
+          prerelease: false
+          body_path: ${{ github.workspace }}/CHANGELOG.md
+          files: |
+            dist/**/*
+            LICENSE
+            README.md
+
+      - name: Publish package
+        run: npx nx release publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

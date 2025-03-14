@@ -55,12 +55,7 @@
     ],
     "sharedGlobals": []
   },
-  "plugins": [
-    {
-      "plugin": "nx-project-types",
-      "options": {}
-    }
-  ],
+  "plugins": [],
   "workspaceLayout": {
     "appsDir": "apps",
     "libsDir": "libs"
