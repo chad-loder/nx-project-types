@@ -67,12 +67,12 @@
       "projectChangelogs": true
     },
     "version": {
-      "conventionalCommits": true,
-      "git": {
-        "commit": true,
-        "tag": true,
-        "commitMessage": "chore(release): publish v${version}"
-      }
+      "conventionalCommits": true
+    },
+    "git": {
+      "commit": true,
+      "tag": true,
+      "commitMessage": "chore(release): publish v${version}"
     },
     "releaseTagPattern": "v{version}"
   }
