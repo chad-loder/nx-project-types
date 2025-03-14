@@ -7,22 +7,53 @@ on:
 
 jobs:
   build-publish:
+    name: Nightly Build and Publish
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
-      - name: Setup pnpm
+          cache: 'pnpm'
+
+      - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 10
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Nx cache
+      - name: Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
       - name: Install dependencies
         run: pnpm install
+
       - name: Set nightly version
         run: |
           PACKAGE_VERSION=$(node -p "require('./package.json').version")
@@ -30,8 +61,20 @@ jobs:
           NIGHTLY_VERSION="${PACKAGE_VERSION}-nightly.${TIMESTAMP}"
           echo "NIGHTLY_VERSION=${NIGHTLY_VERSION}" >> $GITHUB_ENV
           npm version ${NIGHTLY_VERSION} --no-git-tag-version
-      - name: Build
-        run: pnpm build:prod
+
+      - name: Build with Nx
+        run: pnpm exec nx run-many --target=build --configuration=production --parallel=3
+
+      - name: Run tests
+        run: pnpm exec nx run-many --target=test --configuration=unit --parallel=3
+
+      - name: Create GitHub Tag
+        run: |
+          git config --local user.email "actions@github.com"
+          git config --local user.name "GitHub Actions"
+          git tag -a "v${NIGHTLY_VERSION}" -m "Nightly build v${NIGHTLY_VERSION}"
+          git push origin "v${NIGHTLY_VERSION}"
+
       - name: Publish to npm with nightly tag
         run: cd dist && npm publish --tag nightly
         env:

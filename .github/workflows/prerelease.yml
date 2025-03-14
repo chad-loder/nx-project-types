@@ -1,0 +1,100 @@
+name: Pre-Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Pre-release version (e.g., beta.1, rc.1)'
+        required: true
+        default: 'beta.1'
+      tag:
+        description: 'NPM tag to use (e.g., beta, next, rc)'
+        required: true
+        default: 'beta'
+      branch:
+        description: 'Branch to build from'
+        required: true
+        default: 'main'
+
+jobs:
+  prerelease:
+    name: Create Pre-Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.branch }}
+          fetch-depth: 0  # Needed for version history
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          registry-url: https://registry.npmjs.org/
+          cache: 'pnpm'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v3
+        with:
+          version: 10
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Nx cache
+      - name: Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Set pre-release version
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PRERELEASE_VERSION="${PACKAGE_VERSION}-${{ github.event.inputs.version }}"
+          echo "Setting version to ${PRERELEASE_VERSION}"
+          echo "PRERELEASE_VERSION=${PRERELEASE_VERSION}" >> $GITHUB_ENV
+          npm version ${PRERELEASE_VERSION} --no-git-tag-version
+
+      - name: Build
+        run: pnpm build:prod
+
+      - name: Test
+        run: pnpm test:unit
+
+      - name: Create GitHub Pre-Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ env.PRERELEASE_VERSION }}
+          name: Pre-release v${{ env.PRERELEASE_VERSION }}
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+          files: |
+            dist/**/*
+            LICENSE
+            README.md
+
+      - name: Publish to NPM with tag
+        run: cd dist && npm publish --tag ${{ github.event.inputs.tag }}
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true

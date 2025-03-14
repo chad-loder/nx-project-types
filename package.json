@@ -10,12 +10,12 @@
     "project",
     "type"
   ],
-  "homepage": "https://github.com/yourusername/nx-project-types",
+  "homepage": "https://github.com/chad-loder/nx-project-types",
   "bugs": {
-    "url": "https://github.com/yourusername/nx-project-types/issues"
+    "url": "https://github.com/chad-loder/nx-project-types/issues"
   },
-  "license": "UNLICENSED",
-  "author": "Your Name",
+  "license": "MIT",
+  "author": "Chad Loder",
   "main": "dist/index.js",
   "typings": "dist/index.d.ts",
   "directories": {
@@ -32,21 +32,33 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/yourusername/nx-project-types.git"
+    "url": "git+https://github.com/chad-loder/nx-project-types.git"
   },
   "scripts": {
-    "build": "cd libs/nx-project-types && rollup -c",
-    "build:prod": "cd libs/nx-project-types && rollup -c --environment BUILD_MODE:production",
-    "test": "vitest run",
-    "test:unit": "vitest run --config tests/unit/vitest.config.ts",
-    "test:integration": "vitest run --config tests/integration/vitest.config.ts",
-    "test:e2e": "vitest run --config tests/e2e/vitest.config.ts",
-    "test:all": "pnpm run test:unit && pnpm run test:integration && pnpm run test:e2e",
+    "build": "pnpm exec nx run-many --target=build",
+    "build:prod": "pnpm exec nx run-many --target=build --configuration=production",
+    "test": "pnpm exec nx run-many --target=test",
+    "test:unit": "pnpm exec nx run-many --target=test --configuration=unit",
+    "test:watch": "pnpm exec nx run-many --target=test --watch",
+    "test:coverage": "pnpm exec nx run-many --target=test --configuration=coverage",
+    "test:integration": "pnpm exec nx run-many --target=test --configuration=integration",
+    "test:e2e": "pnpm exec nx run-many --target=test --configuration=e2e",
+    "test:all": "pnpm exec nx run-many --target=test --all",
     "test:ui": "vitest --ui",
-    "test:coverage": "vitest run --coverage",
-    "lint": "cd libs/nx-project-types && eslint . --ext .ts",
-    "clean": "rm -rf dist",
+    "lint": "pnpm exec nx run-many --target=lint",
+    "lint:fix": "pnpm exec nx run-many --target=lint --fix",
+    "clean": "rm -rf dist tmp",
     "prepare": "pnpm build:prod",
+    "release": "pnpm exec nx release",
+    "release:version": "pnpm exec nx release version",
+    "prerelease": "pnpm exec nx release version --prerelease=beta",
+    "affected": "pnpm exec nx affected",
+    "affected:build": "pnpm exec nx affected --target=build",
+    "affected:test": "pnpm exec nx affected --target=test",
+    "affected:lint": "pnpm exec nx affected --target=lint",
+    "format": "pnpm exec nx format:write",
+    "graph": "pnpm exec nx graph",
+    "nx-report": "npx nx report",
     "nuke": "npx nx reset || true && rm -rf node_modules dist */*/node_modules **/dist **/coverage .nx **/.nx .pnpm-store .cache .pnpm-debug.log .tmp tmp && find . -name '*.log' -delete && echo '🧹 pnpm-based workspace completely nuked! 💥' && echo '🛑 Nx daemon stopped' && echo '' && echo 'To rebuild (with pnpm only):' && echo '  1. pnpm install        # Reinstall dependencies' && echo '  2. pnpm build          # Rebuild the project' && echo ''"
   },
   "nx-plugin": {
@@ -81,7 +93,7 @@
     "pnpm": ">=7.0.0"
   },
   "publishConfig": {
-    "access": "restricted"
+    "access": "public"
   },
   "type": "commonjs",
   "pnpm": {

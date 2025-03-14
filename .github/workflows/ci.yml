@@ -14,11 +14,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for nx affected commands
+
+      - name: Derive SHAs for nx affected commands
+        uses: nrwl/nx-set-shas@v3
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
+          cache: 'pnpm'
 
       - name: Setup PNPM
         uses: pnpm/action-setup@v3
@@ -40,8 +46,47 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
+      # Nx cache
+      - name: Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
+
       - name: Install dependencies
         run: pnpm install
 
+      - name: Print Nx info
+        run: pnpm exec nx report
+
+      - name: Lint
+        run: pnpm exec nx affected --target=lint --parallel=3 || echo "Linting issues found"
+
       - name: Build
-        run: pnpm build
+        run: pnpm exec nx affected --target=build --parallel=3
+
+      - name: Test
+        run: pnpm exec nx affected --target=test --parallel=3 --configuration=ci
+
+      # Create a PR preview release for testing
+      - name: PR Preview Build
+        if: github.event_name == 'pull_request'
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          PR_NUMBER=$(echo $GITHUB_REF | awk 'BEGIN { FS = "/" } ; { print $3 }')
+          PREVIEW_VERSION="${PACKAGE_VERSION}-pr.${PR_NUMBER}.$(date -u +%Y%m%d%H%M)"
+          echo "PREVIEW_VERSION=${PREVIEW_VERSION}" >> $GITHUB_ENV
+          npm version ${PREVIEW_VERSION} --no-git-tag-version
+          pnpm build:prod
+          echo "✅ PR Preview Build ${PREVIEW_VERSION} created"
+
+      # Upload artifacts for PR builds
+      - name: Upload PR Preview Build
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: pr-preview-build
+          path: dist/
+          retention-days: 7

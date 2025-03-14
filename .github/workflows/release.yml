@@ -4,62 +4,113 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., 1.2.3)'
+        required: true
+        default: ''
 
 jobs:
   build-test-release:
     name: Build, Test, and Release
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      id-token: write # needed for provenance data generation
 
     steps:
-      - name: Checkout repository
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      - name: Get version from tag or input
+        id: get-version
+        run: |
+          if [[ "${{ github.event_name }}" == "push" ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+          else
+            VERSION="${{ github.event.inputs.version }}"
+            if [[ -z "$VERSION" ]]; then
+              echo "Error: Version is required when manually running workflow"
+              exit 1
+            fi
+          fi
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
           registry-url: https://registry.npmjs.org/
+          cache: 'pnpm'
 
-      - name: Setup pnpm
+      - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 10
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Nx cache
+      - name: Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-
 
       - name: Install dependencies
         run: pnpm install
 
-      - name: Print environment info
-        run: npx nx report
+      - name: Clean
+        run: pnpm clean
 
-      - name: Clean and build (production)
-        run: pnpm clean && pnpm build:prod
+      - name: Lint
+        run: pnpm exec nx run-many --target=lint --all --parallel=3
 
-      - name: Run tests
-        run: pnpm test:unit
+      - name: Build
+        run: pnpm exec nx run-many --target=build --configuration=production --parallel=3
 
-      - name: Verify built package
+      - name: Test
+        run: pnpm exec nx run-many --target=test --configuration=unit --parallel=3
+
+      - name: Set package version
+        if: github.event_name == 'workflow_dispatch'
         run: |
-          ls -la dist
-          cat dist/package.json
+          npm version ${{ env.VERSION }} --no-git-tag-version
+
+      - name: Verify package
+        run: |
+          cd dist
+          ls -la
+          cat package.json
+          npx json -f package.json version
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
+          name: Release v${{ env.VERSION }}
+          generate_release_notes: true
           draft: false
-          prerelease: ${{ contains(github.ref, '-') }}
-          body_path: ${{ github.workspace }}/CHANGELOG.md
-          files: |
-            dist/**/*
-            LICENSE
-            README.md
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish package
-        run: cd dist && npm publish
+      - name: Publish to npm
+        run: cd dist && npm publish --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true

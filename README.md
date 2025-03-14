@@ -125,6 +125,18 @@ npx nx release
 npx nx release publish
 ```
 
+### CI/CD Workflows
+
+We use GitHub Actions for continuous integration and delivery:
+
+- **CI**: Runs on PRs and pushes to main, ensuring code quality
+- **Release**: Triggered by version tags or manually for formal releases
+- **Pre-Release**: Creates beta/RC versions for testing
+- **Nightly**: Automatic builds from main every day at midnight UTC
+- **Test Publishing**: Tests the publishing process with Verdaccio
+
+For detailed information about our CI/CD setup, see [CI/CD documentation](./docs/ci-cd.md).
+
 ### Available Builds
 
 - **Stable releases**: Published to npm with the `latest` tag

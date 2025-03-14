@@ -10,6 +10,7 @@ This directory contains documentation for the nx-project-types plugin.
 - [API Reference](./api-reference.md)
 - [Examples](./examples.md)
 - [Testing](./testing/index.md)
+- [CI/CD Workflows](./ci-cd.md)
 
 ## Overview
 
