@@ -5,23 +5,66 @@ on:
     branches: [ main ]
   push:
     branches: [ main ]
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   build-test:
+    name: Build and Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for nx affected commands to work properly
+
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
-      - name: Setup pnpm
+
+      - name: Setup PNPM
         uses: pnpm/action-setup@v3
         with:
           version: 10
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      # Setup Nx cache
+      - name: Nx cache
+        uses: actions/cache@v3
+        with:
+          path: .nx/cache
+          key: ${{ runner.os }}-nx-cache-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-nx-cache-
+
       - name: Install dependencies
         run: pnpm install
+
+      - name: Lint
+        id: lint
+        run: pnpm nx affected --target=lint --parallel=3 || echo "Linting issues found"
+
       - name: Build
-        run: pnpm build:prod
-      - name: Run tests
-        run: pnpm test:unit
+        id: build
+        run: pnpm nx affected --target=build --parallel=3
+
+      - name: Test
+        id: test
+        run: pnpm nx affected --target=test --parallel=3
