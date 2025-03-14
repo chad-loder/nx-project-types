@@ -15,10 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Needed for nx affected commands to work properly
-
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v3
+          fetch-depth: 0  # Needed for git history
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -59,12 +56,12 @@ jobs:
 
       - name: Lint
         id: lint
-        run: pnpm nx affected --target=lint --parallel=3 || echo "Linting issues found"
+        run: pnpm exec nx run-many --target=lint --all || echo "Linting issues found"
 
       - name: Build
         id: build
-        run: pnpm nx affected --target=build --parallel=3
+        run: pnpm exec nx run-many --target=build --all
 
       - name: Test
         id: test
-        run: pnpm nx affected --target=test --parallel=3
+        run: pnpm exec nx run-many --target=test --all
