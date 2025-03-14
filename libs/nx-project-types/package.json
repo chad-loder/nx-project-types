@@ -1,0 +1,42 @@
+{
+  "name": "nx-project-types",
+  "version": "0.1.0",
+  "description": "Project type inheritance system for Nx workspaces",
+  "private": true,
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "generators": "./generators.json",
+  "executors": "./executors.json",
+  "nx-plugin": {
+    "name": "nx-project-types"
+  },
+  "type": "commonjs",
+  "scripts": {
+    "build": "rollup -c",
+    "build:dev": "rollup -c --environment BUILD_MODE:development",
+    "build:prod": "rollup -c --environment BUILD_MODE:production",
+    "build:release": "rollup -c --environment BUILD_MODE:release",
+    "lint": "eslint . --ext .ts --config ../../../workspace/config/lint/node.eslint.config.mjs",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "pnpm build"
+  },
+  "keywords": [
+    "nx",
+    "generator",
+    "project",
+    "type"
+  ],
+  "author": "",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@nx/devkit": "19.8.14"
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "rollup": "^4.13.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.2"
+  }
+}

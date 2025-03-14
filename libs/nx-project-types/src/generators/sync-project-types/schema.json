@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "SyncProjectTypes",
+  "title": "Sync Project Types",
+  "type": "object",
+  "properties": {
+    "dryRun": {
+      "type": "boolean",
+      "description": "Run in dry-run mode (no changes)",
+      "default": false
+    }
+  }
+}

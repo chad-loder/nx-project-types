@@ -1,0 +1,51 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+.pnpm-debug.log
+
+# Built files
+dist/
+build/
+*.tgz
+
+# Testing
+coverage/
+tests/sandbox/*
+!tests/sandbox/README.md
+.nyc_output/
+
+# Cache
+.nx/
+.tmp/
+tmp/
+.cache/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Editor directories and files
+.idea/
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.DS_Store
+.dccache

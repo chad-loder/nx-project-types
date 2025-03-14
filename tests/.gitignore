@@ -1,0 +1,21 @@
+# Exclude sandbox directory as it's used for temporary testing
+sandbox/
+
+# Exclude test coverage reports
+**/coverage
+.nyc_output
+
+# Exclude test artifacts
+**/.nx-tmp
+**/tmp
+**/.tmp
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+
+# Node modules in test fixtures
+**/node_modules

@@ -1,0 +1,14 @@
+{
+  "generators": {
+    "apply-project-type": {
+      "factory": "./src/generators/apply-project-type/index.js",
+      "schema": "./src/generators/apply-project-type/schema.json",
+      "description": "Applies a project type configuration to a specific project"
+    },
+    "sync-project-types": {
+      "factory": "./src/generators/sync-project-types/index.js",
+      "schema": "./src/generators/sync-project-types/schema.json",
+      "description": "Syncs project types across all projects based on their tags"
+    }
+  }
+}

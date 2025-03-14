@@ -1,0 +1,9 @@
+{
+  "executors": {
+    "register": {
+      "implementation": "./libs/nx-project-types/src/executors/register/index.ts",
+      "schema": "./libs/nx-project-types/src/executors/register/schema.json",
+      "description": "Registers nx-project-types with the workspace by updating nx.json"
+    }
+  }
+}

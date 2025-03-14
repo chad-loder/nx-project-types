@@ -1,0 +1,107 @@
+{
+  "name": "react-app",
+  "description": "React application with TypeScript and Webpack configuration",
+  "extends": "web",
+  "config": {
+    "root": "{projectRoot}",
+    "sourceRoot": "{projectRoot}/src",
+    "projectType": "application",
+    "targets": {
+      "build": {
+        "executor": "@nx/webpack:webpack",
+        "outputs": ["{options.outputPath}"],
+        "defaultConfiguration": "production",
+        "options": {
+          "outputPath": "dist/{projectRoot}",
+          "index": "{projectRoot}/src/index.html",
+          "main": "{projectRoot}/src/main.tsx",
+          "polyfills": "{projectRoot}/src/polyfills.ts",
+          "tsConfig": "{projectRoot}/tsconfig.app.json",
+          "assets": [
+            {
+              "glob": "**/*",
+              "input": "{projectRoot}/src/assets",
+              "output": "assets"
+            },
+            {
+              "glob": "favicon.ico",
+              "input": "{projectRoot}/src",
+              "output": "."
+            }
+          ],
+          "styles": ["{projectRoot}/src/styles.css"],
+          "scripts": [],
+          "webpackConfig": "{projectRoot}/webpack.config.js"
+        },
+        "configurations": {
+          "development": {
+            "extractLicenses": false,
+            "optimization": false,
+            "sourceMap": true,
+            "vendorChunk": true
+          },
+          "production": {
+            "fileReplacements": [
+              {
+                "replace": "{projectRoot}/src/environments/environment.ts",
+                "with": "{projectRoot}/src/environments/environment.prod.ts"
+              }
+            ],
+            "optimization": true,
+            "outputHashing": "all",
+            "sourceMap": false,
+            "namedChunks": false,
+            "extractLicenses": true,
+            "vendorChunk": false
+          }
+        }
+      },
+      "serve": {
+        "executor": "@nx/webpack:dev-server",
+        "defaultConfiguration": "development",
+        "options": {
+          "buildTarget": "{projectName}:build",
+          "hmr": true
+        },
+        "configurations": {
+          "development": {
+            "buildTarget": "{projectName}:build:development"
+          },
+          "production": {
+            "buildTarget": "{projectName}:build:production",
+            "hmr": false
+          }
+        }
+      },
+      "lint": {
+        "executor": "@nx/eslint:lint",
+        "outputs": ["{options.outputFile}"],
+        "options": {
+          "lintFilePatterns": [
+            "{projectRoot}/**/*.{ts,tsx,js,jsx}"
+          ]
+        }
+      },
+      "test": {
+        "executor": "@nx/jest:jest",
+        "outputs": ["{projectRoot}/coverage"],
+        "options": {
+          "jestConfig": "{projectRoot}/jest.config.ts",
+          "passWithNoTests": true
+        }
+      }
+    },
+    "tags": ["scope:app", "type:react", "platform:web"]
+  },
+  "files": [
+    "src/index.html",
+    "src/main.tsx",
+    "src/app/app.tsx",
+    "src/app/app.module.css",
+    "src/styles.css",
+    "tsconfig.app.json",
+    "webpack.config.js",
+    "jest.config.ts",
+    ".eslintrc.json"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "declaration": true,
+    "sourceMap": true,
+    "outDir": "dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "lib": ["es2020"],
+    "composite": true,
+    "declarationMap": true,
+    "rootDir": "."
+  },
+  "include": [
+    "libs/nx-project-types/src/**/*.ts",
+    "libs/nx-project-types/index.ts",
+    "index.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "**/*.spec.ts",
+    "tests/**/*"
+  ]
+}

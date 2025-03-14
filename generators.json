@@ -1,0 +1,14 @@
+{
+  "generators": {
+    "apply-project-type": {
+      "implementation": "./libs/nx-project-types/src/generators/apply-project-type/index.ts",
+      "schema": "./libs/nx-project-types/src/generators/apply-project-type/schema.json",
+      "description": "Applies a project type configuration to a specific project"
+    },
+    "sync-project-types": {
+      "implementation": "./libs/nx-project-types/src/generators/sync-project-types/index.ts",
+      "schema": "./libs/nx-project-types/src/generators/sync-project-types/schema.json",
+      "description": "Syncs project types across all projects based on their tags"
+    }
+  }
+}

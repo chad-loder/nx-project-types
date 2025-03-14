@@ -1,0 +1,39 @@
+{
+  "name": "web",
+  "description": "Generic web project with TypeScript and bundling support",
+  "extends": "base",
+  "config": {
+    "targets": {
+      "build": {
+        "executor": "@nx/webpack:webpack",
+        "options": {
+          "outputPath": "dist/{projectName}",
+          "main": "src/index.ts",
+          "tsConfig": "tsconfig.lib.json",
+          "assets": [
+            {
+              "glob": "**/*",
+              "input": "./public",
+              "output": "./"
+            }
+          ],
+          "webpackConfig": "webpack.config.js"
+        }
+      },
+      "serve": {
+        "executor": "@nx/webpack:dev-server",
+        "options": {
+          "buildTarget": "{projectName}:build",
+          "hmr": true
+        }
+      }
+    },
+    "tags": ["scope:app", "type:web"]
+  },
+  "files": [
+    "public/index.html",
+    "public/favicon.ico",
+    "src/index.html.template",
+    "webpack.config.js"
+  ]
+}

@@ -1,0 +1,84 @@
+{
+  "extends": "nx/presets/npm.json",
+  "affected": {
+    "defaultBase": "main"
+  },
+  "tasksRunnerOptions": {
+    "default": {
+      "runner": "nx/tasks-runners/default",
+      "options": {
+        "cacheableOperations": [
+          "build",
+          "lint",
+          "test",
+          "e2e"
+        ]
+      }
+    }
+  },
+  "targetDefaults": {
+    "build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "production",
+        "^production"
+      ]
+    },
+    "lint": {
+      "inputs": [
+        "default",
+        "{workspaceRoot}/.eslintrc.json",
+        "{workspaceRoot}/.eslintignore"
+      ]
+    },
+    "test": {
+      "inputs": [
+        "default",
+        "^production",
+        "{workspaceRoot}/jest.config.js"
+      ]
+    }
+  },
+  "namedInputs": {
+    "default": [
+      "{projectRoot}/**/*",
+      "sharedGlobals"
+    ],
+    "production": [
+      "default",
+      "!{projectRoot}/.eslintrc.json",
+      "!{projectRoot}/**/*.spec.[jt]s",
+      "!{projectRoot}/tsconfig.spec.json",
+      "!{projectRoot}/jest.config.[jt]s"
+    ],
+    "sharedGlobals": []
+  },
+  "plugins": [
+    {
+      "plugin": "nx-project-types",
+      "options": {}
+    }
+  ],
+  "workspaceLayout": {
+    "appsDir": "apps",
+    "libsDir": "libs"
+  },
+  "release": {
+    "projects": ["."],
+    "changelog": {
+      "workspaceChangelog": true,
+      "projectChangelogs": true
+    },
+    "version": {
+      "conventionalCommits": true,
+      "git": {
+        "commit": true,
+        "tag": true,
+        "commitMessage": "chore(release): publish v${version}"
+      }
+    },
+    "releaseTagPattern": "v{version}"
+  }
+}

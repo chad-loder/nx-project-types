@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "ApplyProjectType",
+  "title": "Apply Project Type",
+  "type": "object",
+  "properties": {
+    "project": {
+      "type": "string",
+      "description": "Project name",
+      "$default": {
+        "$source": "argv",
+        "index": 0
+      }
+    },
+    "type": {
+      "type": "string",
+      "description": "Project type",
+      "default": "ai-safe"
+    }
+  },
+  "required": ["project"]
+}

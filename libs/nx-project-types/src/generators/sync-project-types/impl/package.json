@@ -1,0 +1,9 @@
+{
+  "name": "sync-project-types-impl",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.js",
+  "dependencies": {
+    "@nx/devkit": "19.8.14"
+  }
+}

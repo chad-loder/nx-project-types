@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/schema",
+  "cli": "nx",
+  "$id": "Register",
+  "title": "Register nx-project-types",
+  "type": "object",
+  "properties": {
+    "dryRun": {
+      "type": "boolean",
+      "description": "Run in dry-run mode (no changes)",
+      "default": false
+    }
+  }
+}

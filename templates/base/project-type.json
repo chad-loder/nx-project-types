@@ -1,0 +1,54 @@
+{
+  "name": "base",
+  "description": "Base project type with common configuration",
+  "config": {
+    "targets": {
+      "build": {
+        "executor": "@nx/js:tsc",
+        "options": {
+          "outputPath": "dist/{projectName}",
+          "main": "src/index.ts",
+          "tsConfig": "tsconfig.lib.json",
+          "assets": ["README.md"]
+        },
+        "configurations": {
+          "production": {
+            "minify": true,
+            "sourceMap": false
+          },
+          "development": {
+            "minify": false,
+            "sourceMap": true
+          }
+        }
+      },
+      "lint": {
+        "executor": "@nx/eslint:lint",
+        "options": {
+          "lintFilePatterns": ["src/**/*.ts"]
+        }
+      },
+      "test": {
+        "executor": "@nx/jest:jest",
+        "options": {
+          "jestConfig": "jest.config.ts",
+          "passWithNoTests": true
+        }
+      },
+      "nuke": {
+        "executor": "nx-project-types:register",
+        "options": {
+          "command": "rm -rf node_modules dist tmp"
+        }
+      }
+    },
+    "tags": ["scope:lib"]
+  },
+  "files": [
+    "README.md.template",
+    ".eslintrc.json",
+    "tsconfig.json",
+    "tsconfig.lib.json",
+    "jest.config.ts"
+  ]
+}

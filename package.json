@@ -1,0 +1,100 @@
+{
+  "name": "nx-project-types",
+  "version": "0.1.0",
+  "description": "Project type inheritance system for Nx workspaces",
+  "keywords": [
+    "nx",
+    "plugin",
+    "generator",
+    "executor",
+    "project",
+    "type"
+  ],
+  "homepage": "https://github.com/yourusername/nx-project-types",
+  "bugs": {
+    "url": "https://github.com/yourusername/nx-project-types/issues"
+  },
+  "license": "UNLICENSED",
+  "author": "Your Name",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "tests"
+  },
+  "files": [
+    "dist",
+    "generators.json",
+    "executors.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/nx-project-types.git"
+  },
+  "scripts": {
+    "build": "cd libs/nx-project-types && rollup -c",
+    "build:prod": "cd libs/nx-project-types && rollup -c --environment BUILD_MODE:production",
+    "test": "vitest run",
+    "test:unit": "vitest run --config tests/unit/vitest.config.ts",
+    "test:integration": "vitest run --config tests/integration/vitest.config.ts",
+    "test:e2e": "vitest run --config tests/e2e/vitest.config.ts",
+    "test:all": "pnpm run test:unit && pnpm run test:integration && pnpm run test:e2e",
+    "test:ui": "vitest --ui",
+    "test:coverage": "vitest run --coverage",
+    "lint": "cd libs/nx-project-types && eslint . --ext .ts",
+    "clean": "rm -rf dist",
+    "prepare": "pnpm build:prod",
+    "nuke": "npx nx reset || true && rm -rf node_modules dist */*/node_modules **/dist **/coverage .nx **/.nx .pnpm-store .cache .pnpm-debug.log .tmp tmp && find . -name '*.log' -delete && echo '🧹 pnpm-based workspace completely nuked! 💥' && echo '🛑 Nx daemon stopped' && echo '' && echo 'To rebuild (with pnpm only):' && echo '  1. pnpm install        # Reinstall dependencies' && echo '  2. pnpm build          # Rebuild the project' && echo ''"
+  },
+  "nx-plugin": {
+    "name": "nx-project-types"
+  },
+  "dependencies": {
+    "@nx/devkit": "19.8.14",
+    "tslib": "^2.8.1"
+  },
+  "devDependencies": {
+    "@nx/js": "19.8.14",
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.13.10",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "@vitest/coverage-v8": "^3.0.8",
+    "@vitest/ui": "^3.0.8",
+    "eslint": "^9.22.0",
+    "jest": "^29.7.0",
+    "nx": "19.8.14",
+    "rollup": "^4.35.0",
+    "rollup-plugin-typescript2": "^0.36.0",
+    "ts-jest": "^29.2.6",
+    "typescript": "^5.8.2",
+    "vite": "^6.2.2",
+    "vitest": "^3.0.8"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "pnpm": ">=7.0.0"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  },
+  "type": "commonjs",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "nx"
+    ],
+    "peerDependencyRules": {
+      "allowAny": [
+        "nx"
+      ]
+    }
+  },
+  "workspaces": [
+    "libs/*"
+  ]
+}
