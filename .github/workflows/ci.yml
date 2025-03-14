@@ -39,7 +39,7 @@ jobs:
           echo "STORE_PATH=$(pnpm store path)" >> $GITHUB_OUTPUT
 
       - name: Setup pnpm cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
           key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -48,7 +48,7 @@ jobs:
 
       # Nx cache
       - name: Nx cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: .nx/cache
           key: ${{ runner.os }}-nx-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -85,7 +85,7 @@ jobs:
       # Upload artifacts for PR builds
       - name: Upload PR Preview Build
         if: github.event_name == 'pull_request'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pr-preview-build
           path: dist/
