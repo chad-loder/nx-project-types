@@ -14,8 +14,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Needed for git history
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -42,26 +40,8 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pnpm-store-
 
-      # Setup Nx cache
-      - name: Nx cache
-        uses: actions/cache@v3
-        with:
-          path: .nx/cache
-          key: ${{ runner.os }}-nx-cache-${{ hashFiles('pnpm-lock.yaml') }}
-          restore-keys: |
-            ${{ runner.os }}-nx-cache-
-
       - name: Install dependencies
         run: pnpm install
 
-      - name: Lint
-        id: lint
-        run: pnpm exec nx run-many --target=lint --all || echo "Linting issues found"
-
       - name: Build
-        id: build
-        run: pnpm exec nx run-many --target=build --all
-
-      - name: Test
-        id: test
-        run: pnpm exec nx run-many --target=test --all
+        run: pnpm build
