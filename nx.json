@@ -61,7 +61,9 @@
     "libsDir": "libs"
   },
   "release": {
-    "projects": ["."],
+    "projects": [
+      "."
+    ],
     "changelog": {
       "workspaceChangelog": true,
       "projectChangelogs": true
@@ -75,5 +77,6 @@
       "commitMessage": "chore(release): publish v${version}"
     },
     "releaseTagPattern": "v{version}"
-  }
+  },
+  "nxCloudId": "67d5cc59fc9ebea9d489572c"
 }
